@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'guardrails_no_files', message: 'guardrails=true requires fileIds' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
   const last = messages[messages.length - 1];
-  const res = await askWithCitations(last?.content || '');
+  const res = await askWithCitations(last?.content || '', fileIds || []);
   return okJson({ message: { role: 'assistant', content: res.answer, citations: res.citations } });
 }
 
