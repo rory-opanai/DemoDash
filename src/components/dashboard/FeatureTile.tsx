@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
+import type { Route } from "next";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Tooltip } from "@/components/ui/tooltip";
 
 interface FeatureTileProps {
-  href?: string;
+  href?: Route;
   title: string;
   description: string;
   icon: ReactNode;
@@ -13,7 +14,7 @@ interface FeatureTileProps {
   tooltip?: string;
 }
 
-export function FeatureTile({ href = '#', title, description, icon, disabled, tooltip }: FeatureTileProps) {
+export function FeatureTile({ href, title, description, icon, disabled, tooltip }: FeatureTileProps) {
   const body = (
     <div
       className={cn(
@@ -37,7 +38,7 @@ export function FeatureTile({ href = '#', title, description, icon, disabled, to
   const tile = disabled ? (
     tooltip ? <Tooltip content={tooltip}><div>{body}</div></Tooltip> : <div>{body}</div>
   ) : (
-    <Link href={href} className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-black/80">{body}</Link>
+    <Link href={href as Route} className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-black/80">{body}</Link>
   );
   return tile;
 }
