@@ -55,7 +55,7 @@ export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem;
         )}
       </div>
       <div className="mt-3 flex items-center gap-2">
-        <Button variant="secondary" size="sm" onClick={() => onRemix(item.meta?.prompt as string || '')}><RefreshCw className="h-4 w-4 mr-1" />Remix</Button>
+        <Button variant="secondary" size="sm" onClick={() => onRemix((((item as any).meta?.['prompt'] as string) ?? ''))}><RefreshCw className="h-4 w-4 mr-1" />Remix</Button>
         <Button variant="outline" size="sm" onClick={handleDownload}><ArrowDownToLine className="h-4 w-4 mr-1" />Download</Button>
         <Button variant="ghost" size="sm" onClick={onDelete} className="ml-auto text-red-600 hover:bg-red-600/10"><Trash2 className="h-4 w-4 mr-1" />Delete</Button>
       </div>
