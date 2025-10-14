@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SalesForecast",
+  "type": "object",
+  "properties": {
+    "period": {
+      "type": "string"
+    },
+    "pipeline_by_stage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "stage",
+          "value"
+        ]
+      }
+    },
+    "total": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "period",
+    "pipeline_by_stage"
+  ]
+}

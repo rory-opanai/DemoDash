@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS variables for theming */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 10%;
+  --card: 0 0% 100%;
+  --muted: 0 0% 96%;
+  --border: 0 0% 86%;
+  --ring: 0 0% 0%;
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body { @apply bg-white text-neutral-900 font-sans antialiased; }
+
+/* Focus ring */
+*:focus-visible { @apply outline-none ring-2 ring-black/80 ring-offset-2 ring-offset-white; }
+
+/* Cards */
+.card { @apply rounded-2xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] border border-neutral-200; }
+
+/* Reduce motion support */
+@media (prefers-reduced-motion: reduce) {
+  .motion-safe-only {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+

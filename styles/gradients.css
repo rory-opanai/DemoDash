@@ -1,0 +1,12 @@
+/* Light-only soft gradients per brand */
+.grad-purple {
+  background: linear-gradient(180deg, #E6E1FF 0%, #EAF0FF 100%);
+}
+.grad-pink {
+  background: linear-gradient(180deg, #FFE3EA 0%, #F6ECFF 100%);
+}
+.grad-blue {
+  background: linear-gradient(180deg, #E4F2FF 0%, #F3F9FF 100%);
+}
+
+

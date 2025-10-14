@@ -1,0 +1,27 @@
+# Auto-generated ignore file for DemoDash
+node_modules/
+.next/
+.out/
+.vercel/
+
+# Build & coverage
+/dist/
+/coverage/
+
+# Env & local
+.env
+.env.*.local
+/.reports/
+
+# OS/editor
+.DS_Store
+*.log
+*.swp
+.idea/
+.vscode/
+
+# Caches
+.turbo/
+
+# Runtime
+*.pid

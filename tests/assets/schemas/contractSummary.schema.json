@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ContractSummary",
+  "type": "object",
+  "properties": {
+    "parties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "effective_date": {
+      "type": "string"
+    },
+    "value_usd": {
+      "type": "number"
+    },
+    "obligations": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "parties",
+    "effective_date",
+    "value_usd"
+  ]
+}
