@@ -20,6 +20,9 @@ export async function readJson<T>(req: NextRequest): Promise<T> {
 }
 
 export function okJson(data: any, init?: number | ResponseInit) {
+  if (typeof init === 'number') {
+    return NextResponse.json(data, { status: init });
+  }
   return NextResponse.json(data, init);
 }
 

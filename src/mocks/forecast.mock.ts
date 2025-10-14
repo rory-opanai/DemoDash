@@ -12,7 +12,8 @@ export async function getForecastData(region: string, timeframe: 'weekly'|'month
     { name: 'Negotiation', value: base * 0.2 },
     { name: 'Closed Won', value: base * 0.12 }
   ];
-  return { stages, summary: `Forecast for ${region} (${timeframe}) suggests steady conversion with ${Math.round(stages[4].value)} wins.` };
+  const closedWon = stages[4]?.value ?? 0;
+  return { stages, summary: `Forecast for ${region} (${timeframe}) suggests steady conversion with ${Math.round(closedWon)} wins.` };
 }
 
 
