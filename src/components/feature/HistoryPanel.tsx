@@ -1,10 +1,10 @@
 "use client";
-import { useHistoryStore } from "@/stores/historyStore";
+import { useHistoryStore, type HistoryNamespace } from "@/stores/historyStore";
 import { AnyHistoryItem } from "@/types/history";
 import { HistoryCard } from "@/components/feature/HistoryCard";
 
-export function HistoryPanel({ namespace, onRemix }: { namespace: any; onRemix: (prompt: string) => void }) {
-  const items = useHistoryStore((s) => s.itemsByNs[namespace] || []);
+export function HistoryPanel({ namespace, onRemix }: { namespace: HistoryNamespace; onRemix: (prompt: string) => void }) {
+  const items = useHistoryStore((s) => s.itemsByNs[namespace] ?? []);
   const remove = useHistoryStore((s) => s.remove);
   return (
     <aside className="rounded-2xl border border-neutral-200 bg-white p-4 md:p-5 h-[calc(100vh-12rem)] lg:sticky lg:top-24 overflow-auto">

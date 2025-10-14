@@ -3,11 +3,11 @@ import { ReactNode, useState } from "react";
 import { HistoryPanel } from "@/components/feature/HistoryPanel";
 import { PromptPanel, PromptParams } from "@/components/feature/PromptPanel";
 import { AnyHistoryItem } from "@/types/history";
-import { useHistoryStore } from "@/stores/historyStore";
+import { useHistoryStore, type HistoryNamespace } from "@/stores/historyStore";
 import { id as makeId } from "@/lib/utils";
 
 export interface FeaturePageProps {
-  namespace: any;
+  namespace: HistoryNamespace;
   title: string;
   subtitle?: string;
   generateLabel?: string;
@@ -31,15 +31,15 @@ export function FeaturePage({ namespace, title, subtitle, onGenerate, generateLa
       status: 'running',
       meta: { prompt: p }
     } as any;
-    add(namespace as any, running);
+    add(namespace, running);
     const ready = await onGenerate(p, params, tempId);
     // Regardless of what the generator returned, mark the temp entry as ready for Phase 1
-    replace(namespace as any, tempId, { ...ready, id: tempId, status: 'ready' } as AnyHistoryItem);
+    replace(namespace, tempId, { ...ready, id: tempId, status: 'ready' } as AnyHistoryItem);
   }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_1fr] gap-6">
-      <HistoryPanel namespace={namespace as any} onRemix={(text) => setPrompt(text)} />
+      <HistoryPanel namespace={namespace} onRemix={(text) => setPrompt(text)} />
       <div className="space-y-4">
         <div className="flex items-end justify-between">
           <div>

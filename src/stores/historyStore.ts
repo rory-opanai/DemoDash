@@ -13,6 +13,8 @@ type Namespace =
   | 'forecasting'
   | 'other';
 
+export type HistoryNamespace = Namespace;
+
 interface HistoryState {
   itemsByNs: Record<Namespace, AnyHistoryItem[]>;
   add: (ns: Namespace, item: AnyHistoryItem) => void;
