@@ -3,6 +3,19 @@ import { NextRequest } from 'next/server';
 import OpenAI from 'openai';
 import { byokGuard, okJson } from '@/lib/api';
 
+const GPT_IMAGE_MODELS = new Set(['gpt-image-1']);
+const URL_BASED_MODELS = new Set(['dall-e-2', 'dall-e-3']);
+
+type GenerateBody = {
+  prompt: string;
+  size?: string;
+  versions?: number;
+  model?: string;
+  quality?: string;
+  background?: string;
+  outputFormat?: string;
+};
+
 export async function POST(req: NextRequest) {
   const guard = byokGuard(req);
   if (guard) return guard;
@@ -11,7 +24,7 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'missing_api_key' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
 
-  let body: any;
+  let body: GenerateBody;
   try {
     body = await req.json();
   } catch (err) {
@@ -36,16 +49,27 @@ export async function POST(req: NextRequest) {
   const client = new OpenAI({ apiKey });
 
   try {
-    const response = await client.images.generate({
+    const request: Record<string, unknown> = {
       prompt,
       size,
       n,
       model,
-      quality,
-      background,
-      response_format: model === 'gpt-image-1' ? 'b64_json' : 'url',
-      output_format: outputFormat
-    });
+      quality
+    };
+
+    if (background && GPT_IMAGE_MODELS.has(model)) {
+      request['background'] = background;
+    }
+
+    if (outputFormat && GPT_IMAGE_MODELS.has(model)) {
+      request['output_format'] = outputFormat;
+    }
+
+    if (URL_BASED_MODELS.has(model)) {
+      request['response_format'] = 'url';
+    }
+
+    const response = await client.images.generate(request as any);
 
     const now = new Date().toISOString();
     const items = (response.data || []).map((item, index) => {

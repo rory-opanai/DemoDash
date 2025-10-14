@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   if (!apiKey) {
     return new Response(JSON.stringify({ error: 'Missing X-OPENAI-KEY header' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
-  const { messages, guardrails, fileIds = [], tone = 'neutral', model = 'gpt-4.1-mini' } = await req.json();
+  const { messages = [], guardrails, fileIds = [], tone = 'neutral', model = 'gpt-4.1-mini' } = await req.json();
   if (guardrails && fileIds.length === 0) {
     return new Response(JSON.stringify({ error: 'guardrails_no_files', message: 'guardrails=true requires fileIds' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
@@ -33,14 +33,19 @@ export async function POST(req: NextRequest) {
   }
 
   const latest = messages?.[messages.length - 1]?.content || '';
-  const question = guardrails && sources
-    ? `Use the provided sources to answer. If the answer cannot be derived, respond that the information is unavailable.\n\n${sources}\n\nQuestion: ${latest}`
+  const instructions = guardrails
+    ? 'Rely exclusively on the provided sources. If the answer cannot be derived, say you do not have the information.'
+    : 'Reference the provided sources when relevant. If no sources apply, answer from general knowledge.';
+
+  const question = sources
+    ? `${instructions}\n\nSources:\n${sources}\n\nQuestion: ${latest}`
     : latest;
 
   const response = await client.responses.create({
     model,
     input: [
       { role: 'system', content: `You are a ${tone} knowledge assistant. Cite sources inline when possible.` },
+      ...messages.slice(0, -1),
       { role: 'user', content: question }
     ]
   });

@@ -120,7 +120,7 @@ export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem;
           </div>
         ) : null}
       </div>
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button variant="secondary" size="sm" onClick={onRemix} disabled={isRunning}>
           <RefreshCw className="h-4 w-4 mr-1" />Remix
         </Button>
