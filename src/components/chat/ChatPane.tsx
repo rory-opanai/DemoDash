@@ -9,7 +9,7 @@ export interface ChatMessage {
   content: string;
   createdAt?: string;
   citations?: { fileId: string; title?: string; chunk?: string; page?: number }[];
-  attachments?: { name: string; size: number; fileId?: string }[];
+  attachments?: { name: string; size: number; fileId?: string; url?: string }[];
   json?: unknown; // for structured output
   chart?: { stages: { name: string; value: number }[] };
 }
@@ -28,8 +28,17 @@ export function ChatPane({ messages, isStreaming }: { messages: ChatMessage[]; i
             <div className={cn("max-w-[85%] rounded-2xl px-4 py-3", m.role === "user" ? "bg-black text-white" : "bg-neutral-100 text-neutral-900")}> 
               <div className="whitespace-pre-wrap text-[14px] leading-6">{m.content}</div>
               {m.attachments?.length ? (
-                <div className="mt-2 text-[12px] text-neutral-600">
-                  Attachments: {m.attachments.map((a) => a.name).join(", ")}
+                <div className="mt-2 space-y-2 text-[12px] text-neutral-600">
+                  {m.attachments.map((a, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div>{a.name}{a.size ? ` · ${(a.size / 1024).toFixed(1)} KB` : null}</div>
+                      {a.url && a.url.startsWith('data:audio') ? (
+                        <audio controls src={a.url} className="w-full" />
+                      ) : a.url ? (
+                        <a href={a.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">Open attachment</a>
+                      ) : null}
+                    </div>
+                  ))}
                 </div>
               ) : null}
               {m.citations?.length ? (

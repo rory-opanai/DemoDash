@@ -3,7 +3,7 @@ import { useHistoryStore, type HistoryNamespace } from "@/stores/historyStore";
 import { AnyHistoryItem } from "@/types/history";
 import { HistoryCard } from "@/components/feature/HistoryCard";
 
-export function HistoryPanel({ namespace, onRemix }: { namespace: HistoryNamespace; onRemix: (prompt: string) => void }) {
+export function HistoryPanel({ namespace, onRemix }: { namespace: HistoryNamespace; onRemix: (item: AnyHistoryItem) => void }) {
   const items = useHistoryStore((s) => s.itemsByNs[namespace] ?? []);
   const remove = useHistoryStore((s) => s.remove);
   return (
@@ -12,7 +12,7 @@ export function HistoryPanel({ namespace, onRemix }: { namespace: HistoryNamespa
       <div className="space-y-4">
         {items.length === 0 ? <p className="text-sm text-neutral-500">No runs yet. Your generations will appear here.</p> : null}
         {items.map((item: AnyHistoryItem) => (
-          <HistoryCard key={item.id} item={item} onRemix={onRemix} onDelete={() => remove(namespace, item.id)} />
+          <HistoryCard key={item.id} item={item} onRemix={() => onRemix(item)} onDelete={() => remove(namespace, item.id)} />
         ))}
       </div>
     </aside>

@@ -1,71 +1,92 @@
-# OpenAI API Demo Hub (Phase 1)
+# OpenAI Demo Dashboard
 
-A frontend-only Next.js scaffold inspired by the OpenAI product UI. Phase 1 builds the complete UI/UX, state, and mocks - no real API calls or credentials required.
+A fully functional Next.js demo that exercises the latest OpenAI APIs across image, video, voice, embeddings, structured output, and support workflows. Users provide their own API key (BYOK) in the Settings page; all requests are proxied through Next.js route handlers for security and observability.
 
-## Tech
-- Next.js (App Router) + TypeScript + React 18
-- Tailwind CSS + small shadcn-style primitives + lucide-react
-- Zustand for global/state persistence (localStorage)
-- react-hook-form + zod for forms (Settings)
-- framer-motion for light animations
-- recharts for the Forecasting mock
+## Features
 
-## Getting started
+- **Image generation** using `gpt-image-1`/`dall-e-3` with multiple variations, quality and size controls, live download, and Remix support.
+- **Video generation** with `sora-2`/`sora-2-pro`. Jobs are polled until completion, thumbnails/videos are downloaded and cached client-side, and history cards surface progress, retry, and Remix.
+- **Realtime voice + multimodal** assistant: record audio, transcribe with Whisper, receive streamed text plus synthesized speech (`gpt-4o-mini-tts`). Manual text input is also supported.
+- **Knowledge assistant** with optional file guardrails, tone presets, file upload via the Files API, and inline error handling.
+- **Embeddings search** with live indexing (`text-embedding-3`), semantic retrieval, inspector with top‑K results, and conversational summaries.
+- **Structured output / function calling** that constrains responses to JSON schemas and optionally enables tool-calling hints.
+- **Support bot** leveraging streaming Responses API with tone and escalation toggles.
+- Shared history with Remix, download, share, delete, and persistent storage via Zustand.
+
+## Tech Stack
+
+- Next.js (App Router) + React 18 + TypeScript
+- Tailwind CSS + lightweight component primitives
+- Zustand for persisted client state
+- OpenAI Node SDK (`openai@^6`)
+
+## Prerequisites
+
+- Node.js 18+
+- An OpenAI API key with access to the models you plan to demo (image, video, responses, audio, embeddings, files).
+
+## Quick Start
+
 ```bash
-# install
-pnpm i   # or: npm i
+# install dependencies
+npm install
 
-# run dev server
-pnpm dev # or: npm run dev
+# start the local dev server
+npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open <http://localhost:3000>, navigate to **Settings**, and paste your OpenAI API key. The key is stored locally (Zustand + localStorage) and is forwarded to API routes via an `X-OPENAI-KEY` header.
 
-No keys are required in Phase 1. The Settings page lets you enter a token, but it is only stored locally and validated syntactically.
+## Configuration & Environment
 
-## Project structure
-```
-app/                      # Next.js App Router pages
-  layout.tsx              # Global layout + header/footer
-  page.tsx                # Dashboard
-  */page.tsx              # Feature routes
-src/
-  components/             # UI and feature components
-  stores/                 # Zustand stores (app, auth, history)
-  mocks/                  # Local mocks that simulate API output
-  types/                  # Shared types (history items)
-  lib/                    # Utilities (cn, ids, download)
-styles/gradients.css      # Gradient utilities used on hero cards
-```
+| Setting | Description |
+| --- | --- |
+| `OpenAI API Key` (Settings page) | Required. Stored locally, never persisted server-side. |
+| `Default Model` (Settings page) | Prefills the model selector for features that support text models. |
 
-## Feature pages
-All feature routes use the shared `FeaturePage` layout:
-- Left: `HistoryPanel` with `HistoryCard` entries (Remix/Download/Delete)
-- Right: `PromptPanel` with Prompt Optimiser modal and Advanced Params accordion
-- Generate/Run actions create a mocked item with running -> ready state
+No server-side environment variables are required. All requests flow through App Router API routes (under `app/api/**/*`) which validate the presence of the `X-OPENAI-KEY` header via a shared BYOK guard.
 
-Routes:
-- `/` Dashboard with three hero cards and nine feature tiles (Connectors disabled with tooltip)
-- `/image-gen`, `/video-gen`, `/realtime`, `/knowledge-assistant`, `/embeddings-search`, `/structured-output`, `/support-bot`, `/forecasting`, `/connectors` (coming soon)
-- `/settings` for BYOK + model + toggles
-- `/mcp-dev` hidden dev page
+## Supported Models & Parameters
 
-## Design
-- Soft, neutral palette; rounded cards; subtle shadows
-- Light/Dark via `next-themes`
-- Focus-visible rings, keyboard-accessible components
-- Gradients in `styles/gradients.css`
+Feature | Default Model(s) | Key Parameters
+--- | --- | ---
+Image Generation | `gpt-image-1`, `dall-e-3` | size, quality, output format, versions
+Video Generation | `sora-2`, `sora-2-pro` | resolution, duration (4/8/12s)
+Realtime Voice | `gpt-4o-mini` (responses), `gpt-4o-mini-tts` (speech) | voice preset, prompt history
+Knowledge Assistant | `gpt-4.1-mini` | tone, guardrails, file corpus
+Embeddings Search | `text-embedding-3-small` | corpus id, topK
+Structured Output | `gpt-4.1-mini` | schema selection, tool-calling hint
+Support Bot | `gpt-4.1-mini` (streaming responses) | tone, escalation toggle
 
-## Phase plan
-- Phase 1 (this repo): UI, stores, mocks - no network calls
-- Phase 2: Replace mocks with real API calls per page. TODO markers are placed around mocks. Wire BYOK to actual requests.
+## Implementation Notes
 
-## Where to add real API logic (Phase 2)
-- Replace modules in `src/mocks/*` with real service modules
-- In each page within `app/*/page.tsx`, swap the call from the mock to your API client and continue creating `HistoryItem` objects
+- **API Routes** live under `app/api`. Each route validates the BYOK header, calls the OpenAI SDK, and returns normalized JSON for the UI.
+- **History UX** (`src/components/feature/*`) now includes actionable download/share/remix controls, progress indicators, failure messaging, and JSON/session previews.
+- **Realtime** endpoints:
+  - `POST /api/realtime/transcribe` → Whisper transcription of microphone audio.
+  - `POST /api/realtime/respond` → Responses API for text + Text-to-Speech (TTS) audio payloads.
+- **Video** endpoints:
+  - `POST /api/video/generate` → create Sora jobs.
+  - `GET /api/video/jobs/:id` → poll status, surface poster/video URLs.
+  - `GET /api/video/jobs/:id/content` → download binary content (used client-side to create blob URLs).
 
-## CI
-A small GitHub Actions workflow (optional) runs type-check and build. See `.github/workflows/ci.yml`.
+## Development
+
+- **Type Checking**: `npm run type-check`
+- **Linting**: `npm run lint`
+
+History state is persisted locally (`localStorage`) so clearing site data resets demo runs.
+
+## Testing the Demo
+
+1. Add your OpenAI API key in **Settings**.
+2. Exercise each feature under **Start Demoing**:
+   - Generate images/videos and download results from history cards.
+   - Record audio in the realtime assistant, confirm transcription, text response, and playable MP3.
+   - Upload documents, run embeddings search, inspect semantic matches.
+   - Toggle guardrails/tones on the knowledge assistant and support bot to confirm behavioural changes.
+   - Validate failure paths by temporarily clearing the API key or forcing invalid parameters—the UI should surface friendly error messages.
 
 ## License
+
 MIT

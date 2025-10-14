@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdvancedParams, AdvancedParamsValue } from "@/components/feature/AdvancedParams";
@@ -9,9 +10,37 @@ import { useAuthStore } from "@/stores/authStore";
 
 export interface PromptParams extends AdvancedParamsValue {}
 
-export function PromptPanel({ prompt, setPrompt, onGenerate, generateLabel = 'Run', showVersions }: { prompt: string; setPrompt: (v: string) => void; onGenerate: (p: string, params: PromptParams) => void | Promise<void>; generateLabel?: string; showVersions?: boolean; }) {
+export const defaultPromptParams: PromptParams = {
+  temperature: 0.7,
+  maxTokens: 1024,
+  seed: undefined,
+  size: "1024x1024",
+  model: undefined,
+  versions: 1
+};
+
+export function PromptPanel({
+  prompt,
+  setPrompt,
+  params,
+  onParamsChange,
+  onGenerate,
+  generateLabel = "Run",
+  showVersions,
+  isGenerating,
+  renderAdvanced
+}: {
+  prompt: string;
+  setPrompt: (v: string) => void;
+  params: PromptParams;
+  onParamsChange: (params: PromptParams) => void;
+  onGenerate: (p: string, params: PromptParams) => void | Promise<void>;
+  generateLabel?: string;
+  showVersions?: boolean;
+  isGenerating?: boolean;
+  renderAdvanced?: (value: PromptParams, onChange: (next: PromptParams) => void) => ReactNode;
+}) {
   const [open, setOpen] = useState(false);
-  const [params, setParams] = useState<AdvancedParamsValue>({ temperature: 0.7, maxTokens: 1024, seed: 0 });
   const model = useAuthStore((s) => s.model);
 
   const charCount = prompt.length;
@@ -25,17 +54,28 @@ export function PromptPanel({ prompt, setPrompt, onGenerate, generateLabel = 'Ru
       <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={8} placeholder="Describe what you want to generate..." />
       <div className="mt-3 flex items-center justify-between">
         <Button variant="secondary" onClick={() => setOpen(true)}>Prompt Optimiser</Button>
-        <Button onClick={() => onGenerate(prompt, params)}>{generateLabel}</Button>
+        <Button onClick={() => onGenerate(prompt, params)} disabled={isGenerating || !prompt.trim()}>
+          {isGenerating ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {generateLabel}
+            </span>
+          ) : (
+            generateLabel
+          )}
+        </Button>
       </div>
       <div className="mt-4">
-        <AdvancedParams value={params} onChange={setParams} showVersions={showVersions} />
+        {renderAdvanced
+          ? renderAdvanced(params, onParamsChange)
+          : <AdvancedParams value={params} onChange={onParamsChange} showVersions={showVersions} />}
       </div>
 
       <PromptOptimizerModal open={open} onOpenChange={setOpen} prompt={prompt} onReplace={setPrompt} />
       <CurlDrawer curl={`curl https://api.openai.com/v1/chat/completions \
   -H 'Authorization: Bearer <TOKEN>' \
   -H 'Content-Type: application/json' \
-  -d '{"model":"${params.model || model}","input":"${prompt.replace(/"/g, '\\"')}"}'`} />
+  -d '{"model":"${params.model || model}","input":"${prompt.replace(/"/g, '\"')}"}'`} />
     </div>
   );
 }
