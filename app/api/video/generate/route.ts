@@ -1,13 +1,18 @@
+"use server";
 import { NextRequest } from 'next/server';
-import { byokGuard, okJson } from '@/lib/api';
+import { byokGuard } from '@/lib/api';
 
 export async function POST(req: NextRequest) {
-  const err = byokGuard(req);
-  if (err) return err;
-  const { prompt, seconds = 12, size = '1280x720', versions = 1 } = await req.json();
-  const n = Math.min(Math.max(parseInt(versions, 10) || 1, 1), 4);
-  const jobIds = Array.from({ length: n }).map(() => `job_${Math.random().toString(36).slice(2,10)}`);
-  return okJson({ jobIds, status: 'queued' });
+  const guard = byokGuard(req);
+  if (guard) return guard;
+  return new Response(
+    JSON.stringify({
+      error: 'sora_unavailable',
+      message: 'Video generation is available via the public Sora showcase.',
+      url: 'https://openai-sora-demo.vercel.app'
+    }),
+    { status: 501, headers: { 'Content-Type': 'application/json' } }
+  );
 }
 
 

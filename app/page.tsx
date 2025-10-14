@@ -11,7 +11,7 @@ export default function Page() {
         <HeroCard title="Realtime (Voice)" subtitle="Low-latency multimodal sessions." gradientClass="grad-blue" tryHref="/realtime" />
       </section>
       <section>
-        <h2 className="text-xl font-semibold mb-4">Start building</h2>
+        <h2 className="text-xl font-semibold mb-4">Start Demoing</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           <FeatureTile href="/image-gen" title="Image Generation" description="Create images from text prompts." icon={<ImageIcon className="h-5 w-5" />} />
           <FeatureTile href="/video-gen" title="Video Generation" description="Generate short videos from prompts." icon={<VideoIcon className="h-5 w-5" />} />

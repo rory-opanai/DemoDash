@@ -30,7 +30,18 @@ export default function Page() {
     const me: ChatMessage = { id: crypto.randomUUID(), role: 'user', content: prompt, createdAt: new Date().toISOString() };
     setMessages((m) => [...m, me]);
     setPrompt('');
-    const res = await fetch('/api/knowledge/ask', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-OPENAI-KEY': token || '' }, body: JSON.stringify({ sessionId: 's1', corpusId, messages: [{ role:'user', content: me.content }] }) });
+    const res = await fetch('/api/knowledge/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-OPENAI-KEY': token || '' },
+      body: JSON.stringify({
+        sessionId: 's1',
+        corpusId,
+        tone,
+        guardrails,
+        fileIds: files.map((f) => f.fileId),
+        messages: [...messages, me].map(({ role, content }) => ({ role, content }))
+      })
+    });
     if (res.ok) {
       const data = await res.json();
       const ai: ChatMessage = { id: crypto.randomUUID(), role: 'assistant', content: data.message.content, citations: data.message.citations, createdAt: new Date().toISOString() };
@@ -46,7 +57,11 @@ export default function Page() {
       right={
         <RightPane>
           <div className="space-y-6">
-            <CorpusPanel corpusId={corpusId} setCorpusId={setCorpusId} onUpload={upload} files={files} setFiles={setFiles} />
+            <CorpusPanel corpusId={corpusId} setCorpusId={setCorpusId} onUpload={async (fl) => {
+              const items = await upload(fl);
+              setFiles((prev) => [...prev, ...items]);
+              return items;
+            }} files={files} setFiles={setFiles} />
             <div>
               <div className="text-[13px] font-medium text-neutral-800 mb-2">Options</div>
               <div className="grid grid-cols-2 gap-3">
@@ -57,7 +72,7 @@ export default function Page() {
             <div>
               <div className="text-[13px] font-medium text-neutral-800 mb-2">Prompt</div>
               <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ask a question about your files…" />
-              <div className="mt-3 flex justify-end"><Button onClick={ask}>Ask</Button></div>
+              <div className="mt-3 flex justify-end"><Button onClick={ask} disabled={!prompt.trim() || (guardrails && files.length === 0)}>Ask</Button></div>
             </div>
           </div>
         </RightPane>

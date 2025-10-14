@@ -6,7 +6,6 @@ import { RightPane } from '@/components/chat/RightPane';
 import { CorpusPanel, UploadedFile } from '@/components/chat/CorpusPanel';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Select } from '@/components/ui/select';
 import { useAuthStore } from '@/stores/authStore';
 import { InspectorDrawer } from '@/components/chat/InspectorDrawer';
 
@@ -20,11 +19,23 @@ export default function Page() {
   const token = useAuthStore((s) => s.byokToken);
 
   async function upload(filesList: FileList) {
-    const fd = new FormData();
-    Array.from(filesList).forEach((f) => fd.append('files', f));
-    const res = await fetch('/api/files/upload', { method: 'POST', headers: { 'X-OPENAI-KEY': token || '' }, body: fd });
-    const data = await res.json();
-    return data.items as UploadedFile[];
+    const docs = await Promise.all(
+      Array.from(filesList).map(async (f) => ({
+        id: `${f.name}-${crypto.randomUUID()}`,
+        filename: f.name,
+        bytes: f.size,
+        text: await f.text()
+      }))
+    );
+    await fetch('/api/embeddings/index', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-OPENAI-KEY': token || '' },
+      body: JSON.stringify({
+        corpusId,
+        docs: docs.map((doc) => ({ id: doc.id, text: doc.text, meta: { filename: doc.filename } }))
+      })
+    });
+    return docs.map((doc) => ({ fileId: doc.id, filename: doc.filename, bytes: doc.bytes }));
   }
 
   async function runSearch() {
@@ -46,13 +57,17 @@ export default function Page() {
         right={
           <RightPane>
             <div className="space-y-6">
-              <CorpusPanel corpusId={corpusId} setCorpusId={setCorpusId} onUpload={upload} files={files} setFiles={setFiles} />
+              <CorpusPanel corpusId={corpusId} setCorpusId={setCorpusId} onUpload={async (fl) => {
+                const items = await upload(fl);
+                setFiles((prev) => [...prev, ...items]);
+                return items;
+              }} files={files} setFiles={setFiles} />
               <div>
                 <div className="text-[13px] font-medium text-neutral-800 mb-2">Prompt</div>
                 <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ask a question or search…" />
                 <div className="mt-3 flex items-center justify-between">
                   <Button variant="secondary" onClick={() => setInspectorOpen(true)}>Open Dev Inspector</Button>
-                  <Button onClick={runSearch}>Send</Button>
+                  <Button onClick={runSearch} disabled={!prompt.trim()}>Send</Button>
                 </div>
               </div>
             </div>

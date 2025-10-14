@@ -18,9 +18,10 @@ export default function Page() {
 
   async function send() {
     const me: ChatMessage = { id: crypto.randomUUID(), role: 'user', content: prompt, createdAt: new Date().toISOString() };
-    setMessages((m) => [...m, me]);
+    const history = [...messages, me];
+    setMessages(history);
     setPrompt('');
-    const res = await fetch('/api/support/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-OPENAI-KEY': token || '' }, body: JSON.stringify({ sessionId: 's1', messages: [{ role:'user', content: me.content }], tone, escalate }) });
+    const res = await fetch('/api/support/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-OPENAI-KEY': token || '' }, body: JSON.stringify({ sessionId: 's1', messages: history.map(({ role, content }) => ({ role, content })), tone, escalate }) });
     if (!res.ok || !res.body) return;
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -31,7 +32,10 @@ export default function Page() {
       const chunk = decoder.decode(value);
       chunk.split("\n\n").forEach((l) => {
         if (l.startsWith('data: ')) {
-          try { const j = JSON.parse(l.slice(6)); content += j.delta || ''; } catch {}
+          try {
+            const j = JSON.parse(l.slice(6));
+            if (j.delta) content += j.delta;
+          } catch {}
         }
       });
     }

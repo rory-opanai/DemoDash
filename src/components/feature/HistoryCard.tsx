@@ -7,17 +7,26 @@ import { downloadBlob } from "@/lib/download";
 import { ArrowDownToLine, RefreshCw, Trash2 } from "lucide-react";
 
 export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem; onRemix: (prompt: string) => void; onDelete: () => void }) {
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    const previewUrl = (item as any).previewUrl;
     if (item.kind === 'image' || item.kind === 'video') {
-      // Download placeholder SVG or poster
-      fetch((item as any).previewUrl)
-        .then((r) => r.text())
-        .then((text) => downloadBlob(text, `${item.title.replace(/\s+/g, '_')}.svg`, 'image/svg+xml'))
-        .catch(() => downloadBlob('Preview', `${item.title}.txt`, 'text/plain'));
+      try {
+        if (previewUrl?.startsWith('data:')) {
+          const res = await fetch(previewUrl);
+          const blob = await res.blob();
+          downloadBlob(blob, `${item.title.replace(/\s+/g, '_')}.${blob.type.includes('png') ? 'png' : 'svg'}`, blob.type);
+          return;
+        }
+        const res = await fetch(previewUrl);
+        const text = await res.text();
+        downloadBlob(text, `${item.title.replace(/\s+/g, '_')}.svg`, 'image/svg+xml');
+      } catch (err) {
+        downloadBlob('Preview unavailable', `${item.title}.txt`, 'text/plain');
+      }
     } else if (item.kind === 'json') {
       downloadBlob(JSON.stringify((item as any).json, null, 2), `${item.title.replace(/\s+/g, '_')}.json`, 'application/json');
     } else {
-      downloadBlob((item as any).meta?.text || item.title, `${item.title}.txt`, 'text/plain');
+      downloadBlob(((item as any).meta?.text as string) || item.title, `${item.title}.txt`, 'text/plain');
     }
   };
 
