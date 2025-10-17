@@ -42,10 +42,16 @@ export function ChatPane({ messages, isStreaming }: { messages: ChatMessage[]; i
                 </div>
               ) : null}
               {m.citations?.length ? (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {m.citations.map((c, i) => (
-                    <span key={i} className="rounded-full bg-neutral-200 px-2 py-0.5 text-[12px]">{c.title || c.fileId}{c.page ? ` · p${c.page}` : ""}</span>
-                  ))}
+                <div className="mt-3 space-y-1">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">Sources</div>
+                  <div className="flex flex-wrap gap-2">
+                    {m.citations.map((c, i) => (
+                      <span key={i} className="rounded-full bg-neutral-200 px-2 py-0.5 text-[12px] text-neutral-700">
+                        {c.title || c.fileId}
+                        {c.page ? ` · p${c.page}` : ""}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               ) : null}
               {m.json ? (

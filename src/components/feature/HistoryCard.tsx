@@ -5,6 +5,7 @@ import { formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { downloadBlob } from "@/lib/download";
+import { ForecastChart, type ForecastPoint } from "@/components/forecast/ForecastChart";
 import { AlertCircle, ArrowDownToLine, Loader2, RefreshCw, Share2, Trash2 } from "lucide-react";
 
 export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem; onRemix: () => void; onDelete: () => void }) {
@@ -105,12 +106,11 @@ export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem;
           </div>
         )}
         {item.kind === 'chart' && (
-          <div className="rounded-lg border border-neutral-200 p-3 bg-white">
-            {(() => {
-              const ChartComp = (item as any).meta?.chart;
-              return ChartComp ? <ChartComp data={(item as any).meta.data} /> : null;
-            })()}
-            <div className="text-xs text-neutral-600 mt-2">{(item as any).meta?.summary}</div>
+          <div className="rounded-lg border border-neutral-200 p-3 bg-white space-y-2">
+            <ForecastChart data={((item as any).meta?.series as ForecastPoint[]) ?? []} />
+            {(item as any).meta?.summary ? (
+              <div className="text-xs text-neutral-600">{(item as any).meta?.summary}</div>
+            ) : null}
           </div>
         )}
         {errorMessage ? (

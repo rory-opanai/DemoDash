@@ -7,11 +7,13 @@ A fully functional Next.js demo that exercises the latest OpenAI APIs across ima
 - **Image generation** using `gpt-image-1`/`dall-e-3` with multiple variations, quality and size controls, live download, and Remix support.
 - **Video generation** with `sora-2`/`sora-2-pro`. Jobs are polled until completion, thumbnails/videos are downloaded and cached client-side, and history cards surface progress, retry, and Remix.
 - **Realtime voice + multimodal** assistant: record audio, transcribe with Whisper, receive streamed text plus synthesized speech (`gpt-4o-mini-tts`). Manual text input is also supported.
-- **Knowledge assistant** with optional file guardrails, tone presets, file upload via the Files API, and inline error handling.
+- **Knowledge assistant** with optional file guardrails, tone presets, file upload via the Files API, inline error handling, and surfaced source citations.
 - **Embeddings search** with live indexing (`text-embedding-3`), semantic retrieval, inspector with top‑K results, and conversational summaries.
 - **Structured output / function calling** that constrains responses to JSON schemas and optionally enables tool-calling hints.
 - **Support bot** leveraging streaming Responses API with tone and escalation toggles.
-- Shared history with Remix, download, share, delete, and persistent storage via Zustand.
+- **Sales forecasting agent** that pulls Salesforce opportunities via MCP, generates OpenAI-backed narratives, and renders live charts.
+- **Connectors (MCP)** overview for managing Salesforce, Zendesk, and Google Drive integrations with health-check API routes.
+- Shared history with Remix, download, share, delete, clear-all controls, and persistent storage via Zustand.
 
 ## Tech Stack
 
@@ -43,8 +45,11 @@ Open <http://localhost:3000>, navigate to **Settings**, and paste your OpenAI AP
 | --- | --- |
 | `OpenAI API Key` (Settings page) | Required. Stored locally, never persisted server-side. |
 | `Default Model` (Settings page) | Prefills the model selector for features that support text models. |
+| `SALESFORCE_MCP_ENDPOINT` | Optional. URL for the Salesforce MCP connector used by the forecasting agent. |
+| `SALESFORCE_MCP_TOKEN` | Optional bearer token forwarded to the Salesforce MCP endpoint. |
+| `SALESFORCE_MCP_ENABLE_DEMO` | When `true`, seeds the forecasting agent with sample opportunities for local testing. |
 
-No server-side environment variables are required. All requests flow through App Router API routes (under `app/api/**/*`) which validate the presence of the `X-OPENAI-KEY` header via a shared BYOK guard.
+All requests flow through App Router API routes (under `app/api/**/*`) which validate the presence of the `X-OPENAI-KEY` header via a shared BYOK guard.
 
 ## Supported Models & Parameters
 
@@ -86,6 +91,7 @@ History state is persisted locally (`localStorage`) so clearing site data resets
    - Upload documents, run embeddings search, inspect semantic matches.
    - Toggle guardrails/tones on the knowledge assistant and support bot to confirm behavioural changes.
    - Validate failure paths by temporarily clearing the API key or forcing invalid parameters—the UI should surface friendly error messages.
+   - Visit **Forecasting** and **Connectors** to confirm MCP-enabled flows render helpful guidance when Salesforce credentials are missing.
 
 ## License
 
