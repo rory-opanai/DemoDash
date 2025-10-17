@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zendesk logo">
+  <rect width="64" height="64" rx="16" fill="#ecfdf5" />
+  <path d="M16 20 L32 12 L32 32 Z" fill="#10b981" />
+  <path d="M48 44 L32 52 L32 32 Z" fill="#047857" />
+  <circle cx="22" cy="44" r="6" fill="#34d399" />
+  <circle cx="42" cy="20" r="6" fill="#059669" />
+</svg>

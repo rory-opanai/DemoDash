@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { Metadata } from 'next';
 import { Plug } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
   title: 'MCP Connectors'
@@ -37,6 +39,11 @@ export default function Page() {
               Configure third-party systems so demo agents can reason over live enterprise data. Credentials are provided via environment variables or secure secrets and resolved at runtime through the Model Context Protocol.
             </p>
           </div>
+        </div>
+        <div>
+          <Button asChild>
+            <Link href="/chat">Launch connector copilot</Link>
+          </Button>
         </div>
         <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-4 text-sm text-neutral-600">
           Add credentials to <code>SALESFORCE_MCP_ENDPOINT</code> (and optional <code>SALESFORCE_MCP_TOKEN</code>) to enable Salesforce forecasting. Additional connectors can be registered by extending the MCP server—this page surfaces their status for demo readiness.

@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HubSpot logo">
+  <rect width="64" height="64" rx="16" fill="#fef3f2" />
+  <circle cx="22" cy="22" r="6" fill="#f97316" />
+  <circle cx="44" cy="32" r="12" fill="#fb923c" />
+  <path d="M22 22 L44 32" stroke="#ea580c" stroke-width="4" stroke-linecap="round" />
+  <circle cx="22" cy="42" r="6" fill="#f97316" />
+</svg>
