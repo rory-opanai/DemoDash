@@ -21,7 +21,7 @@ export default function Page() {
           <FeatureTile href="/structured-output" title="Structured Output / Function Calling" description="Constrain outputs with schemas." icon={<Sparkles className="h-5 w-5" />} />
           <FeatureTile href="/support-bot" title="Customer Support Chat" description="Tone presets and escalation toggle." icon={<MessagesSquare className="h-5 w-5" />} />
           <FeatureTile href="/forecasting" title="Sales Forecasting Agent" description="Charts and narratives." icon={<LineChart className="h-5 w-5" />} />
-          <FeatureTile title="Connectors (MCP) — Coming soon" description="Coming soon" icon={<Plug className="h-5 w-5" />} disabled tooltip="MCP-based connectors coming soon." />
+          <FeatureTile href="/connectors" title="Connectors (MCP)" description="Integrate Salesforce and more via MCP." icon={<Plug className="h-5 w-5" />} />
         </div>
       </section>
     </div>

@@ -3,6 +3,27 @@ import { NextRequest } from 'next/server';
 import OpenAI from 'openai';
 import { byokGuard, okJson } from '@/lib/api';
 
+interface FileReference {
+  fileId: string;
+  filename: string;
+}
+
+function extractCitations(text: string, files: FileReference[]) {
+  const regex = /source\s*(\d+)/gi;
+  const seen = new Set<string>();
+  const citations: { fileId: string; title: string }[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text))) {
+    const index = Number(match[1]) - 1;
+    if (!Number.isFinite(index) || index < 0 || index >= files.length) continue;
+    const ref = files[index];
+    if (seen.has(ref.fileId)) continue;
+    seen.add(ref.fileId);
+    citations.push({ fileId: ref.fileId, title: ref.filename });
+  }
+  return citations;
+}
+
 export async function POST(req: NextRequest) {
   const guard = byokGuard(req);
   if (guard) return guard;
@@ -17,19 +38,27 @@ export async function POST(req: NextRequest) {
   const client = new OpenAI({ apiKey });
 
   let sources = '';
+  const fileRefs: FileReference[] = [];
   if (fileIds.length) {
-    const contents = await Promise.all(
+    const entries = await Promise.all(
       fileIds.map(async (fileId: string, idx: number) => {
         try {
-          const file = await client.files.content(fileId);
-          const text = await file.text();
-          return `Source ${idx + 1} (${fileId}):\n${text}`;
+          const [meta, contentRes] = await Promise.all([
+            client.files.retrieve(fileId),
+            client.files.content(fileId)
+          ]);
+          const text = await contentRes.text();
+          const filename = (meta as any)?.filename || `file-${idx + 1}`;
+          fileRefs.push({ fileId, filename });
+          return `Source ${idx + 1} (${filename} · ${fileId}):\n${text}`;
         } catch (err) {
-          return `Source ${idx + 1} (${fileId}): [unavailable]`;
+          const fallbackName = `file-${idx + 1}`;
+          fileRefs.push({ fileId, filename: fallbackName });
+          return `Source ${idx + 1} (${fallbackName} · ${fileId}): [unavailable]`;
         }
       })
     );
-    sources = contents.join("\n\n");
+    sources = entries.join("\n\n");
   }
 
   const latest = messages?.[messages.length - 1]?.content || '';
@@ -51,7 +80,9 @@ export async function POST(req: NextRequest) {
   });
   const output = ((response as any).output || []) as any[];
   const contentPart = output.flatMap((entry: any) => (entry?.content ? entry.content : [])).find((part: any) => part?.type === 'output_text');
-  return okJson({ message: { role: 'assistant', content: contentPart?.text || '', citations: [] } });
+  const contentText = contentPart?.text || '';
+  const citations = contentText ? extractCitations(contentText, fileRefs) : [];
+  return okJson({ message: { role: 'assistant', content: contentText, citations } });
 }
 
 

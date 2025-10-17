@@ -82,6 +82,9 @@ export default function Page() {
         <RightPane>
           <div className="space-y-4">
             {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-700">{error}</div> : null}
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-[13px] text-neutral-600">
+              Tip: ask about a billing issue or return request to see the assistant adapt tone and optionally escalate to a human agent.
+            </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2"><span className="text-[13px] text-neutral-700">Tone</span><Select value={tone} onChange={(e) => setTone(e.target.value as any)}><option value="friendly">friendly</option><option value="professional">professional</option><option value="terse">terse</option></Select></div>
               <div className="flex items-center gap-2"><span className="text-[13px] text-neutral-700">Escalation</span><Switch checked={escalate} onChange={(e: any) => setEscalate(e.target.checked)} /></div>
