@@ -28,7 +28,8 @@ export function PromptPanel({
   generateLabel = "Run",
   showVersions,
   isGenerating,
-  renderAdvanced
+  renderAdvanced,
+  extras
 }: {
   prompt: string;
   setPrompt: (v: string) => void;
@@ -39,6 +40,7 @@ export function PromptPanel({
   showVersions?: boolean;
   isGenerating?: boolean;
   renderAdvanced?: (value: PromptParams, onChange: (next: PromptParams) => void) => ReactNode;
+  extras?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const model = useAuthStore((s) => s.model);
@@ -65,6 +67,7 @@ export function PromptPanel({
           )}
         </Button>
       </div>
+      {extras ? <div className="mt-4">{extras}</div> : null}
       <div className="mt-4">
         {renderAdvanced
           ? renderAdvanced(params, onParamsChange)

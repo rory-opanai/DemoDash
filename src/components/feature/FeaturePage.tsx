@@ -6,6 +6,14 @@ import { AnyHistoryItem } from "@/types/history";
 import { useHistoryStore, type HistoryNamespace } from "@/stores/historyStore";
 import { id as makeId } from "@/lib/utils";
 
+export interface PromptExtrasRenderProps {
+  prompt: string;
+  params: PromptParams;
+  setPrompt: (value: string) => void;
+  setParams: (next: PromptParams) => void;
+  isGenerating: boolean;
+}
+
 export interface FeaturePageProps {
   namespace: HistoryNamespace;
   title: string;
@@ -17,6 +25,7 @@ export interface FeaturePageProps {
   initialPrompt?: string;
   initialParams?: PromptParams;
   renderAdvancedParams?: (value: PromptParams, onChange: (next: PromptParams) => void) => ReactNode;
+  renderPromptExtras?: (props: PromptExtrasRenderProps) => ReactNode;
 }
 
 export function FeaturePage({
@@ -29,7 +38,8 @@ export function FeaturePage({
   showVersions,
   initialPrompt,
   initialParams,
-  renderAdvancedParams
+  renderAdvancedParams,
+  renderPromptExtras
 }: FeaturePageProps) {
   const add = useHistoryStore((s) => s.add);
   const replace = useHistoryStore((s) => s.replace);
@@ -113,6 +123,11 @@ export function FeaturePage({
           showVersions={showVersions}
           isGenerating={isGenerating}
           renderAdvanced={mergedRenderAdvanced}
+          extras={
+            renderPromptExtras
+              ? renderPromptExtras({ prompt, params, setPrompt, setParams, isGenerating })
+              : undefined
+          }
         />
       </div>
     </div>
