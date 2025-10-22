@@ -133,6 +133,7 @@ export async function POST(req: NextRequest) {
       if (outputFormat) {
         editRequest['output_format'] = outputFormat;
       }
+      editRequest['response_format'] = 'url';
       const response = await client.images.edit(editRequest as any);
       const items = (response.data || []).map((item, index) => {
         const id = `img_${index}_${Math.random().toString(36).slice(2)}`;
@@ -168,6 +169,7 @@ export async function POST(req: NextRequest) {
     if (outputFormat) {
       generateRequest['output_format'] = outputFormat;
     }
+    generateRequest['response_format'] = 'url';
     const response = await client.images.generate(generateRequest as any);
     const items = (response.data || []).map((item, index) => {
       const id = `img_${index}_${Math.random().toString(36).slice(2)}`;

@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -11,10 +12,12 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     | "destructive"
     | "link";
   size?: "sm" | "md" | "lg" | "icon";
+  asChild?: boolean;
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "md", ...props }, ref) => {
+  ({ className, variant = "default", size = "md", asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
     const base =
       "inline-flex items-center justify-center whitespace-nowrap rounded-xl font-medium transition-colors motion-safe-only focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/80 disabled:opacity-60 disabled:pointer-events-none";
     const variants: Record<string, string> = {
@@ -36,10 +39,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: "h-10 w-10 rounded-xl"
     };
     return (
-      <button ref={ref} className={cn(base, variants[variant], sizes[size], className)} {...props} />
+      <Comp ref={ref} className={cn(base, variants[variant], sizes[size], className)} {...props} />
     );
   }
 );
 Button.displayName = "Button";
-
 

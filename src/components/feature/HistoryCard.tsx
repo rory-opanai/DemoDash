@@ -4,6 +4,7 @@ import { AnyHistoryItem } from "@/types/history";
 import { formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { downloadBlob } from "@/lib/download";
 import { ForecastChart, type ForecastPoint } from "@/components/forecast/ForecastChart";
 import { AlertCircle, ArrowDownToLine, Loader2, RefreshCw, Share2, Trash2 } from "lucide-react";
@@ -89,8 +90,29 @@ export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem;
         ) : null}
         {item.kind === 'image' && (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={(item as any).previewUrl} alt="preview" className="w-full rounded-lg border border-neutral-200" />
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="w-full overflow-hidden rounded-lg border border-neutral-200 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/80"
+                  aria-label="View image"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={(item as any).previewUrl} alt="preview" className="w-full object-cover" />
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader title={item.title || 'Generated Image'} description={`${formatDateTime(item.createdAt)} · ${item.model || 'model'}`} />
+                <div className="mt-4 flex justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={(item as any).previewUrl}
+                    alt={item.title || 'Generated image'}
+                    className="max-h-[70vh] w-auto rounded-xl border border-neutral-200 object-contain"
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
             {referenceFilenames.length ? (
               <div className="mt-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
                 <span className="font-medium text-neutral-700">References:</span>{' '}
@@ -148,5 +170,4 @@ export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem;
     </div>
   );
 }
-
 
