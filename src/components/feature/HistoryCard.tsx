@@ -10,6 +10,9 @@ import { AlertCircle, ArrowDownToLine, Loader2, RefreshCw, Share2, Trash2 } from
 
 export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem; onRemix: () => void; onDelete: () => void }) {
   const [copied, setCopied] = useState(false);
+  const referenceFilenames = Array.isArray(item.meta?.['referenceFilenames'])
+    ? (item.meta?.['referenceFilenames'] as unknown[]).filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
+    : [];
 
   const handleDownload = async () => {
     try {
@@ -85,8 +88,16 @@ export function HistoryCard({ item, onRemix, onDelete }: { item: AnyHistoryItem;
           </div>
         ) : null}
         {item.kind === 'image' && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={(item as any).previewUrl} alt="preview" className="w-full rounded-lg border border-neutral-200" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={(item as any).previewUrl} alt="preview" className="w-full rounded-lg border border-neutral-200" />
+            {referenceFilenames.length ? (
+              <div className="mt-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+                <span className="font-medium text-neutral-700">References:</span>{' '}
+                {referenceFilenames.join(', ')}
+              </div>
+            ) : null}
+          </>
         )}
         {item.kind === 'video' && (
           <video
